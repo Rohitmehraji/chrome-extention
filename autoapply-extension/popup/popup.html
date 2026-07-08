@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AutoApply</title>
+<link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="brand-mark">▲</span>
+      <span class="brand-name">AutoApply</span>
+    </div>
+    <div id="siteBadge" class="badge badge-off">no supported site</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="run">Run</button>
+    <button class="tab" data-tab="profile">Profile</button>
+    <button class="tab" data-tab="log">Log</button>
+  </nav>
+
+  <section id="tab-run" class="tab-panel active">
+    <div class="run-card">
+      <p class="run-hint" id="runHint">Open a Naukri job/search page or a Workday application page, then hit run.</p>
+      <button id="runBtn" class="btn-primary" disabled>Start Auto-Apply</button>
+      <button id="stopBtn" class="btn-ghost" disabled>Stop</button>
+    </div>
+
+    <div class="safety-row">
+      <label class="switch">
+        <input type="checkbox" id="autoStartToggle" />
+        <span class="slider"></span>
+      </label>
+      <div class="safety-copy">
+        <strong>Auto-start</strong>
+        <p>On = starts filling automatically the moment a Naukri or Workday apply page loads, no click needed.</p>
+      </div>
+    </div>
+
+    <div class="safety-row">
+      <label class="switch">
+        <input type="checkbox" id="autoSubmitToggle" />
+        <span class="slider"></span>
+      </label>
+      <div class="safety-copy">
+        <strong>Auto-submit</strong>
+        <p>On = fills every step and submits straight through, including agreement checkboxes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-profile" class="tab-panel">
+    <form id="profileForm">
+      <div class="grid-2">
+        <label>First name<input type="text" name="firstName" /></label>
+        <label>Last name<input type="text" name="lastName" /></label>
+      </div>
+      <label>Full name<input type="text" name="fullName" /></label>
+      <div class="grid-2">
+        <label>Email<input type="email" name="email" /></label>
+        <label>Phone<input type="tel" name="phone" /></label>
+      </div>
+      <div class="grid-2">
+        <label>Experience (yrs)<input type="text" name="experienceYears" /></label>
+        <label>Notice period<input type="text" name="noticePeriod" /></label>
+      </div>
+      <div class="grid-2">
+        <label>Current CTC<input type="text" name="currentCTC" /></label>
+        <label>Expected CTC<input type="text" name="expectedCTC" /></label>
+      </div>
+      <div class="grid-2">
+        <label>Current location<input type="text" name="currentLocation" /></label>
+        <label>Preferred location<input type="text" name="preferredLocation" /></label>
+      </div>
+      <label>Skills (comma separated)<textarea name="skills" rows="2"></textarea></label>
+      <label>Education / degree<input type="text" name="education" /></label>
+      <label>University / college<input type="text" name="university" /></label>
+      <div class="grid-2">
+        <label>LinkedIn URL<input type="text" name="linkedIn" /></label>
+        <label>Portfolio / GitHub<input type="text" name="portfolio" /></label>
+      </div>
+      <label>Work authorization<input type="text" name="workAuthorization" placeholder="e.g. Authorized to work in India" /></label>
+
+      <label class="file-label">
+        Resume (PDF)
+        <input type="file" id="resumeInput" accept=".pdf,.doc,.docx" />
+        <span id="resumeFileName" class="file-name">no file saved</span>
+      </label>
+
+      <button type="submit" class="btn-primary">Save profile</button>
+      <p id="saveStatus" class="save-status"></p>
+    </form>
+  </section>
+
+  <section id="tab-log" class="tab-panel">
+    <div class="log-header">
+      <span id="logCount">0 applications logged</span>
+      <button id="clearLogBtn" class="btn-ghost small">Clear</button>
+    </div>
+    <ul id="logList" class="log-list"></ul>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>
