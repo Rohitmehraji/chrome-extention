@@ -19,6 +19,7 @@ const AutoApplyUtils = (() => {
    * by React because it patches the native setter).
    */
   function setNativeValue(element, value) {
+    if (!element) return false;
     const proto = Object.getPrototypeOf(element);
     const descriptor = Object.getOwnPropertyDescriptor(proto, "value");
     const nativeSetter = descriptor && descriptor.set;
@@ -30,15 +31,31 @@ const AutoApplyUtils = (() => {
     element.dispatchEvent(new Event("input", { bubbles: true }));
     element.dispatchEvent(new Event("change", { bubbles: true }));
     element.dispatchEvent(new Event("blur", { bubbles: true }));
+    return true;
+  }
+
+  /**
+   * Check if an element's innerText is effectively empty (only whitespace).
+   * Prevents clicking on empty decorative elements.
+   */
+  function isEffectivelyEmpty(element) {
+    if (!element) return true;
+    return !element.innerText || element.innerText.trim() === "";
   }
 
   /** Click helper that fires a full mouse event sequence, closer to a real click */
   function realClick(element) {
-    if (!element) return;
+    if (!element) return false;
+    // Defensive: don't click empty elements
+    if (isEffectivelyEmpty(element)) {
+      console.warn("[AutoApply] Skipping click on empty element:", element);
+      return false;
+    }
     element.scrollIntoView({ block: "center", behavior: "instant" });
     for (const type of ["pointerdown", "mousedown", "pointerup", "mouseup", "click"]) {
       element.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
     }
+    return true;
   }
 
   /**
@@ -47,6 +64,7 @@ const AutoApplyUtils = (() => {
    * finally nearby preceding text as a fallback (common in Workday's markup).
    */
   function findLabelText(field) {
+    if (!field) return "";
     if (field.id) {
       const forLabel = document.querySelector(`label[for="${CSS.escape(field.id)}"]`);
       if (forLabel) return forLabel.innerText.trim();
@@ -74,6 +92,20 @@ const AutoApplyUtils = (() => {
       if (label && label.innerText.trim()) return label.innerText.trim();
     }
     return field.getAttribute("placeholder") || field.name || "";
+  }
+
+  /**
+   * Find a clickable element (button, link, etc.) by its visible text content.
+   * Used as a fallback when class/id selectors miss.
+   */
+  function findByText(containerOrDoc, text, tagNames = ["button", "a", "div[role='button']", "li"]) {
+    const container = containerOrDoc || document;
+    const selector = tagNames.join(", ");
+    const elements = Array.from(container.querySelectorAll(selector));
+    const normalizedSearch = text.toLowerCase().trim();
+    return elements.find((el) => 
+      el.innerText && el.innerText.toLowerCase().includes(normalizedSearch)
+    );
   }
 
   /**
@@ -125,6 +157,7 @@ const AutoApplyUtils = (() => {
    */
   function attachFileFromBase64(input, base64Data, filename, mimeType) {
     try {
+      if (!input || !base64Data) return false;
       const byteChars = atob(base64Data.split(",").pop());
       const byteNumbers = new Array(byteChars.length);
       for (let i = 0; i < byteChars.length; i++) byteNumbers[i] = byteChars.charCodeAt(i);
@@ -176,8 +209,8 @@ const AutoApplyUtils = (() => {
   }
 
   return {
-    wait, humanDelay, setNativeValue, realClick, findLabelText,
+    wait, humanDelay, setNativeValue, realClick, findLabelText, findByText,
     matchProfileValue, attachFileFromBase64, getProfile, logApplication,
-    waitForElement,
+    waitForElement, isEffectivelyEmpty,
   };
 })();
